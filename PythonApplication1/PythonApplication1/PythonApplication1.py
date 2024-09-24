@@ -96,6 +96,45 @@ def tree_grow(x, y, nmin, minleaf, nfeat):
 def tree_pred(x, tr):
     return
 
- 
+
+
+
+
+
+#Example results from the credit scoring data seen in lecture 1. All nodes in the tree are printed. #TO DO: a nice print function for a tree would be nice
+
+#Input credit scoring from lectures
+valuex = np.array([[22, 28000],
+              [46, 32000],
+              [24, 24000],
+              [25, 27000],
+              [29, 32000],
+              [45, 30000],
+              [63, 58000],
+              [36, 52000],
+              [23, 40000],
+              [50, 28000]])
+valuey = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
+valuenmin = 2
+valueminleaf = 1
+valuenfeat = 2 #number of columns in x
+
+#Output credit scoring, tree is the same as the one in the lecture as should be according to the recommneded test given in the assignment
+valuetree = tree_grow(valuex, valuey, valuenmin, valueminleaf, valuenfeat)
+print("Root node")
+print(valuetree.x)
+print("Left split")
+print(valuetree.left.x)
+print("Right split")
+print(valuetree.right.x)
+print("Left left split")
+print(valuetree.left.left.x)
+print("Left right split")
+print(valuetree.left.right.x)
+print("Left right left split")
+print(valuetree.left.right.left.x)
+print("Left right right split")
+print(valuetree.left.right.right.x)
+
 
 
