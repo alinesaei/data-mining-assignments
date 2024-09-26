@@ -104,21 +104,29 @@ def tree_pred(x, tr):
 #Example results from the credit scoring data seen in lecture 1. All nodes in the tree are printed. #TO DO: a nice print function for a tree would be nice
 
 #Input credit scoring from lectures
-valuex = np.array([[22, 28000],
-              [46, 32000],
-              [24, 24000],
-              [25, 27000],
-              [29, 32000],
-              [45, 30000],
-              [63, 58000],
-              [36, 52000],
-              [23, 40000],
-              [50, 28000]])
-valuey = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
+'''
+#valuex = np.array([[22, 28000],
+#              [46, 32000],
+#              [24, 24000],
+#              [25, 27000],
+#              [29, 32000],
+#              [45, 30000],
+#              [63, 58000],
+#              [36, 52000],
+#              [23, 40000],
+#              [50, 28000]])
+#valuey = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
+'''
+# These two lines do the same
+valuex = np.array((credit_data[:, [0,1,2,3,4]]))
+valuey = np.array((credit_data[:, [5][0]]))
+
 valuenmin = 2
 valueminleaf = 1
-valuenfeat = 2 #number of columns in x
+valuenfeat = 5 #number of columns in x
 
+'''
+# This code can be replaced
 #Output credit scoring, tree is the same as the one in the lecture as should be according to the recommneded test given in the assignment
 valuetree = tree_grow(valuex, valuey, valuenmin, valueminleaf, valuenfeat)
 print("Root node")
@@ -135,6 +143,36 @@ print("Left right left split")
 print(valuetree.left.right.left.x)
 print("Left right right split")
 print(valuetree.left.right.right.x)
+'''
 
+# Here follows a general code to this problem
+from collections import deque
+queue = deque() # nwe queue datastructuur mk
+# bedoeling om met bfs een opsomming eerst te maken. 
 
+def represent_node_content(node):
+    som = (np.sum(node.y))
+    lengte = (len(node.y))
+    return str((round((lengte-som)), round(som)))
+    
+def printer(node):
+    huidige_node = node
+    try: # checks whether any child nodes exist on the left and right hand side
+        volgende_node_l = huidige_node.left
+        print(represent_node_content(volgende_node_l))
+        queue.append(volgende_node_l)
+
+        volgende_node_r = huidige_node.right
+        print(represent_node_content(volgende_node_l))
+        queue.append(volgende_node_r)
+    except:
+        pass
+
+root = (valuetree)
+queue.append(root)
+
+print(represent_node_content(root))
+
+while len(queue) != 0:
+    printer(node=queue.pop())
 
