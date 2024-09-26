@@ -147,32 +147,53 @@ print(valuetree.left.right.right.x)
 
 # Here follows a general code to this problem
 from collections import deque
-queue = deque() # nwe queue datastructuur mk
-# bedoeling om met bfs een opsomming eerst te maken. 
+from treelib import Node, Tree
+
+node_parent_dict = dict()
+tree = Tree()   # t.b.v. de visualisatie
+
+queue = deque() # nieuwe queue datastructuur maken
 
 def represent_node_content(node):
     som = (np.sum(node.y))
     lengte = (len(node.y))
     return str((round((lengte-som)), round(som)))
-    
+
 def printer(node):
     huidige_node = node
-    try: # checks whether any child nodes exist on the left and right hand side
+    try: 
+        # checks whether any child nodes exist on the left hand side
         volgende_node_l = huidige_node.left
         print(represent_node_content(volgende_node_l))
         queue.append(volgende_node_l)
+        kv_vgd_l = {represent_node_content(volgende_node_l): represent_node_content (huidige_node)}
+        node_parent_dict.update(kv_vgd_l)
 
+        # checks whether any child nodes exist on the right hand side
         volgende_node_r = huidige_node.right
         print(represent_node_content(volgende_node_l))
         queue.append(volgende_node_r)
+        kv_vgd_r = {represent_node_content(volgende_node_r): represent_node_content(huidige_node)}
+        node_parent_dict.update(kv_vgd_r)
     except:
         pass
 
 root = (valuetree)
 queue.append(root)
 
+
 print(represent_node_content(root))
 
 while len(queue) != 0:
     printer(node=queue.pop())
 
+
+# CAUTION: getting this code to work requires the following action
+# INSTALL TREELIB==1.6.4 AND FOLLOW THE INSTRUCTIONS HERE:
+# https://stackoverflow.com/questions/46345677/treelib-prints-garbage-instead-of-pseudographics-in-python3
+
+tree.create_node((represent_node_content(root)),(represent_node_content(root)))
+
+for key, value in node_parent_dict.items():
+    tree.create_node(key, key , parent=value)
+tree.show()
