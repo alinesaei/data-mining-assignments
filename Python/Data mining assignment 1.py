@@ -57,10 +57,12 @@ def visualize_tree(root):
 
 
 ##Part 1 Functions
+
+#TreeNode is the class used for trees. Each TreeNode can be a leaf node, and if not has a (possible) left and right node.
 class TreeNode:
     def __init__(self, x, y, best_val=None, best_column=None, is_leaf=False):
-        self.x = x
-        self.y = y
+        self.x = x #The feature values, consisting of a subset of values of the input columns x
+        self.y = y #The vector of remaining class labels
         self.left = None
         self.right = None
         self.best_column = best_column
@@ -68,6 +70,7 @@ class TreeNode:
         self.is_leaf = is_leaf
         self.majority = np.argmax(np.bincount(y))
 
+#Impurity function calculating the impurity of an array (from lecture notes)
 def impurity(array):
     if len(array) == 0:
         return 0
