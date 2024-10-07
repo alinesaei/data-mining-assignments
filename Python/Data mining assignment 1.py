@@ -57,12 +57,10 @@ def visualize_tree(root):
 
 
 ##Part 1 Functions
-
-#TreeNode is the class used for trees. Each TreeNode can be a leaf node, and if not has a (possible) left and right node.
 class TreeNode:
     def __init__(self, x, y, best_val=None, best_column=None, is_leaf=False):
-        self.x = x #The feature values, consisting of a subset of values of the input columns x
-        self.y = y #The vector of remaining class labels
+        self.x = x
+        self.y = y
         self.left = None
         self.right = None
         self.best_column = best_column
@@ -70,7 +68,6 @@ class TreeNode:
         self.is_leaf = is_leaf
         self.majority = np.argmax(np.bincount(y))
 
-#Impurity function calculating the impurity of an array (from lecture notes)
 def impurity(array):
     if len(array) == 0:
         return 0
@@ -193,52 +190,69 @@ def conf_matrix(y_true, y_pred):
 
 
 ##Formatting the data
-
+#Redundant code on pima indians
+"""""
 #Open the pima indians data file
-file = open(directory+'Pima_Indians.txt')
-data = file.read()
+file_pima = open(directory+'Pima_Indians.txt')
+data_pima = file_pima.read()
 
-# Split the string data into lines and then convert each line into a list of floats
-data_lines = data.strip().split('\n')
-data_array = np.array([list(map(float, line.split(','))) for line in data_lines])
+#Open the eclipse data
+file1 = open(directory+'eclipse-metrics-packages-2.0.csv')
+data1 = file1.read()
 
-# Now X can be properly sliced
 X = data_array[:, :-1]  # Features
 y = data_array[:, -1].astype(int)  # Labels
 
 # Split data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+"""
+
+# Split the string data into lines and then convert each line into a list of floats
+data_array1 = np.genfromtxt(directory+'eclipse-metrics-packages-2.0.csv', delimiter=';', skip_header = 1)
+data_array2 = np.genfromtxt(directory+'eclipse-metrics-packages-3.0.csv', delimiter=';', skip_header = 1)
+
+X_includedcolumns = [2] +list(range(4,44))
+X_train = data_array1[:, X_includedcolumns] #Only include the desired columns, which is pre and everything in table 1 of the paper
+Y_train = data_array1[:, 3] #Only include post
+Y_train[Y_train >= 1] = 1 #Turn the value of amount of post bug reports into a binary value denoting whether there was a post bug report
+Y_train = Y_train.astype(int) #Convert the float values to integers
+
+#Same process for the test data (3.0)
+X_test = data_array2[:, X_includedcolumns]
+Y_test = data_array2[:, 3]
+Y_test[Y_test >= 1] = 1
+Y_test = Y_test.astype(int)
 
 
-##Using functions on the formatted data: single classification tree NOTE: this is now done for the test in the hints with pima indians data, the data matches exactly!
-tree = tree_grow(X, y, nmin=20, minleaf=5, nfeat=8)
-y_pred_tree = tree_pred(X, tree)
+##Using functions on the formatted data: single classification tree
+tree = tree_grow(X_train, Y_train, nmin=15, minleaf=5, nfeat=41)
+Y_pred_tree = tree_pred(X_test, tree)
 
-acc_tree = accuracy(y, y_pred_tree)
-prec_tree = precision(y, y_pred_tree)
-rec_tree = recall(y, y_pred_tree)
-conf_matrix_tree = conf_matrix(y, y_pred_tree)
+acc_tree = accuracy(Y_test, Y_pred_tree)
+prec_tree = precision(Y_test, Y_pred_tree)
+rec_tree = recall(Y_test, Y_pred_tree)
+conf_matrix_tree = conf_matrix(Y_test, Y_pred_tree)
 
 
 ##Using functions on the formatted data: bagging
-forest_bagging = tree_grow_b(X_train, y_train, nmin=20, minleaf=5, nfeat=2, m=5)
-y_pred_bagging = tree_pred_b(X_test, forest_bagging)
+forest_bagging = tree_grow_b(X_train, Y_train, nmin=15, minleaf=5, nfeat=41, m=100)
+Y_pred_bagging = tree_pred_b(X_test, forest_bagging)
  
-acc_bagging = accuracy(y_test, y_pred_bagging)
-prec_bagging = precision(y_test, y_pred_bagging)
-rec_bagging = recall(y_test, y_pred_bagging)
-conf_matrix_bagging = conf_matrix(y_test, y_pred_bagging)
+acc_bagging = accuracy(Y_test, Y_pred_bagging)
+prec_bagging = precision(Y_test, Y_pred_bagging)
+rec_bagging = recall(Y_test, Y_pred_bagging)
+conf_matrix_bagging = conf_matrix(Y_test, Y_pred_bagging)
 
 
 
 ##Using function on the formatted data: random forests
-forest_rf = randomf_grow(X_train, y_train, nmin=20, minleaf=5, m=5)
-y_pred_rf = tree_pred_b(X_test, forest_rf)
+forest_rf = randomf_grow(X_train, Y_train, nmin=15, minleaf=5, m=100) #nfeat is indead 41, it is calculated within the randomf_grow function using sqrt
+Y_pred_rf = tree_pred_b(X_test, forest_rf)
 
-acc_rf = accuracy(y_test, y_pred_rf)
-prec_rf = precision(y_test, y_pred_rf)
-rec_rf = recall(y_test, y_pred_rf)
-conf_matrix_rf = conf_matrix(y_test, y_pred_rf)
+acc_rf = accuracy(Y_test, Y_pred_rf)
+prec_rf = precision(Y_test, Y_pred_rf)
+rec_rf = recall(Y_test, Y_pred_rf)
+conf_matrix_rf = conf_matrix(Y_test, Y_pred_rf)
 
 
 ##Result output
@@ -258,7 +272,6 @@ recall_scores = [rec_tree, rec_bagging, rec_rf]
 bar_width = 0.2
 index = np.arange(len(models))
 
-"""
 plt.figure(figsize=(10, 6))
 plt.bar(index, accuracy_scores, bar_width, label='Accuracy', color='b')
 plt.bar(index + bar_width, precision_scores, bar_width, label='Precision', color='g')
@@ -269,4 +282,4 @@ plt.title('Performance Comparison')
 plt.xticks(index + bar_width, models)
 plt.legend()
 plt.show()
-"""
+
